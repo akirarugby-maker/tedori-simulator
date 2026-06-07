@@ -547,11 +547,13 @@ function updateFuyouSummary(){
 function calc(inc,ft,idm,useExtra){
   var fuyou=calcFuyou();
   var iA=idm*12,h=0,nu=0,pe=0,ei=0,sk=0;
-  if(S.emp&&inc>0){
+  if(S.emp&&inc>=1060000){
     var mo=inc/12,pb=Math.min(mo,650000),hb=Math.min(mo,1390000);
     h=Math.round(hb*0.05065*12);pe=Math.round(pb*0.0915*12);
     ei=Math.round(inc*0.008);sk=Math.round(hb*0.00115*12);
     if(S.age>=40)nu=Math.round(hb*0.0081*12);
+  } else if(S.emp&&inc>0){
+    ei=Math.round(inc*0.008);
   }
   var si=h+nu+pe+ei+sk,kj=kk(inc),sh=Math.max(0,inc-kj),hkv=hk(S.spI),kiso=ki();
 
