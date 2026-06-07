@@ -550,10 +550,10 @@ function calc(inc,ft,idm,useExtra){
   if(S.emp&&inc>=1060000){
     var mo=inc/12,pb=Math.min(mo,650000),hb=Math.min(mo,1390000);
     h=Math.round(hb*0.05065*12);pe=Math.round(pb*0.0915*12);
-    ei=Math.round(inc*0.008);sk=Math.round(hb*0.00115*12);
+    ei=Math.round(inc*0.006);sk=Math.round(hb*0.00115*12);
     if(S.age>=40)nu=Math.round(hb*0.0081*12);
   } else if(S.emp&&inc>0){
-    ei=Math.round(inc*0.008);
+    ei=Math.round(inc*0.006);
   }
   var si=h+nu+pe+ei+sk,kj=kk(inc),sh=Math.max(0,inc-kj),hkv=hk(S.spI),kiso=ki();
 
@@ -601,7 +601,8 @@ function calcSpouse(spI){
   if(hasSI){
     var mo=spI/12,pb=Math.min(mo,650000),hb=Math.min(mo,1390000);
     h=Math.round(hb*0.05065*12);pe=Math.round(pb*0.0915*12);
-    ei=Math.round(spI*0.008);sk=Math.round(hb*0.00115*12);
+    ei=Math.round(spI*0.006);sk=Math.round(hb*0.00115*12);
+    // 配偶者の年齢不明のため世帯主年齢で近似
     if(S.age>=40)nu=Math.round(hb*0.0081*12);
   }
   var si=h+nu+pe+ei+sk,kj=kk(spI),gsh=Math.max(0,spI-kj),kiso=ki();
@@ -616,11 +617,12 @@ function det(r,id){
   var e=document.getElementById(id),html='';
   html+='<div class="det-sec">社会保険料</div>';
   if(S.emp){
-    html+='<div class="detail-row"><span class="det-lbl">健康保険</span><span class="det-mn">-'+fm(r.h)+'</span></div>';
+    if(r.h>0)html+='<div class="detail-row"><span class="det-lbl">健康保険</span><span class="det-mn">-'+fm(r.h)+'</span></div>';
     if(r.nu>0)html+='<div class="detail-row"><span class="det-lbl">介護保険</span><span class="det-mn">-'+fm(r.nu)+'</span></div>';
-    html+='<div class="detail-row"><span class="det-lbl">厚生年金</span><span class="det-mn">-'+fm(r.pe)+'</span></div>';
-    html+='<div class="detail-row"><span class="det-lbl">雇用保険</span><span class="det-mn">-'+fm(r.ei)+'</span></div>';
-    html+='<div class="detail-row"><span class="det-lbl">子育て支援金</span><span class="det-mn">-'+fm(r.sk)+'</span></div>';
+    if(r.pe>0)html+='<div class="detail-row"><span class="det-lbl">厚生年金</span><span class="det-mn">-'+fm(r.pe)+'</span></div>';
+    if(r.ei>0)html+='<div class="detail-row"><span class="det-lbl">雇用保険</span><span class="det-mn">-'+fm(r.ei)+'</span></div>';
+    if(r.sk>0)html+='<div class="detail-row"><span class="det-lbl">子育て支援金</span><span class="det-mn">-'+fm(r.sk)+'</span></div>';
+    if(r.h===0&&r.pe===0)html+='<div class="detail-row"><span class="det-lbl" style="font-size:10px">年収106万円未満のため社保加入対象外</span></div>';
   }else{html+='<div class="detail-row"><span class="det-lbl" style="font-size:10px">（別途国保・国民年金）</span></div>';}
   html+='<div class="detail-row" style="border-top:1px solid #e2e8f0;margin-top:2px;padding-top:4px"><span class="det-lbl" style="font-weight:600">社保計</span><span class="det-mn">-'+fm(r.si)+'</span></div>';
 
