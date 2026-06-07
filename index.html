@@ -20,8 +20,10 @@ label{font-size:12px;color:#4a5568;display:block;margin-bottom:3px;}
 .val{font-weight:700;color:#1a202c;}
 .val.lg{font-size:20px;}
 .val.blue{color:#2d5a8e;}
-.val.green{color:#2d8e5a;}
-input[type=range]{width:100%;margin:3px 0 8px;accent-color:#2d5a8e;}
+.sl-wrap{display:flex;align-items:center;gap:6px;margin:3px 0 8px;}
+.sl-wrap input[type=range]{flex:1;margin:0;accent-color:#2d5a8e;}
+.sl-btn{width:34px;height:34px;border-radius:8px;border:1px solid #cbd5e0;background:#f7fafc;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#2d5a8e;font-weight:700;line-height:1;-webkit-user-select:none;user-select:none;}
+.sl-btn:active{background:#e2e8f0;}
 .btn-row{display:flex;gap:8px;margin-bottom:12px;}
 .btn-row button{flex:1;padding:8px 4px;font-size:12px;border-radius:8px;border:1px solid #cbd5e0;background:#f7fafc;cursor:pointer;font-weight:500;}
 .btn-row button.act{background:#2d5a8e;color:#fff;border-color:#2d5a8e;}
@@ -49,6 +51,23 @@ input[type=range]{width:100%;margin:3px 0 8px;accent-color:#2d5a8e;}
 .diff-val.pos{color:#38a169;}
 .diff-val.neg{color:#e53e3e;}
 .diff-note{font-size:11px;color:#718096;}
+.hh-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.hh-pane{background:#f7fafc;border-radius:8px;padding:12px;}
+.hh-pane.sim{background:#eff6ff;}
+.hh-pane-title{font-size:11px;font-weight:700;color:#718096;text-align:center;margin-bottom:8px;}
+.hh-pane.sim .hh-pane-title{color:#2d5a8e;}
+.hh-row{display:flex;justify-content:space-between;font-size:11px;padding:2px 0;}
+.hh-total-row{display:flex;justify-content:space-between;font-size:13px;font-weight:700;border-top:1px solid #e2e8f0;margin-top:6px;padding-top:6px;}
+.hh-diff{text-align:center;padding:10px;border-radius:8px;margin-bottom:10px;}
+.hh-diff.pos{background:#f0fff4;border:1px solid #9ae6b4;}
+.hh-diff.neg{background:#fff5f5;border:1px solid #feb2b2;}
+.hh-diff-label{font-size:11px;color:#4a5568;}
+.hh-diff-val{font-size:22px;font-weight:700;}
+.hh-diff-val.pos{color:#38a169;}
+.hh-diff-val.neg{color:#e53e3e;}
+.sp-detail-title{font-size:12px;font-weight:700;color:#4a5568;margin:12px 0 6px;}
+.sp-si-box{background:#fff5f5;border-radius:8px;padding:10px;margin-bottom:8px;}
+.deduction-box{background:#f0fff4;border-radius:8px;padding:10px;}
 .wall-item{display:flex;gap:8px;align-items:flex-start;padding:7px 10px;margin-bottom:4px;border-radius:8px;border:1px solid #e2e8f0;background:#f7fafc;}
 .wall-item.over{background:#fff5f5;border-color:#fed7d7;}
 .wall-amt{font-size:12px;font-weight:700;white-space:nowrap;color:#4a5568;min-width:60px;}
@@ -68,82 +87,104 @@ input[type=range]{width:100%;margin:3px 0 8px;accent-color:#2d5a8e;}
 .sp-tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;margin:2px 3px 2px 0;}
 .sp-over{background:#fff5f5;color:#c53030;}
 .sp-ok{background:#f0fff4;color:#276749;}
+details{background:#fff;border-radius:12px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,0.08);overflow:hidden;}
+summary{font-size:13px;font-weight:700;color:#2d5a8e;padding:14px 16px;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;}
+summary::-webkit-details-marker{display:none;}
+summary::after{content:'▼';font-size:10px;color:#718096;}
+details[open] summary::after{content:'▲';}
+.logic-body{padding:0 16px 16px;font-size:11px;color:#4a5568;line-height:1.8;}
+.logic-sec{margin-bottom:12px;}
+.logic-sec h4{font-size:12px;font-weight:700;color:#2d5a8e;margin-bottom:4px;border-bottom:1px solid #e2e8f0;padding-bottom:3px;}
+.lf{background:#f7fafc;border-radius:6px;padding:8px;font-family:monospace;font-size:10px;color:#2d3748;margin:4px 0;white-space:pre-wrap;}
+.lt{width:100%;border-collapse:collapse;font-size:10px;margin:4px 0;}
+.lt th{background:#e2e8f0;padding:4px 6px;text-align:left;}
+.lt td{padding:4px 6px;border-bottom:1px solid #f0f0f0;}
 </style>
 </head>
 <body>
-
 <div class="header">
   <h1>手取り額シミュレーター</h1>
   <p>大阪府（協会けんぽ）令和8年（2026年）分対応版</p>
 </div>
-
 <div class="container">
 
-  <!-- 基本情報 -->
   <div class="card">
     <div class="card-title">基本情報</div>
-
     <label>年齢：<span class="val" id="age-o">40歳</span></label>
-    <input type="range" min="20" max="75" value="40" id="age-s">
-
+    <div class="sl-wrap">
+      <button class="sl-btn" onclick="adj('age-s',-1)">－</button>
+      <input type="range" min="20" max="75" value="40" id="age-s">
+      <button class="sl-btn" onclick="adj('age-s',1)">＋</button>
+    </div>
     <label style="margin-bottom:6px">雇用形態</label>
     <div class="btn-row">
       <button id="be" onclick="setEmp(true)">会社員（社保加入）</button>
       <button id="bf" onclick="setEmp(false)">社保なし／自営業</button>
     </div>
-
     <label style="margin-bottom:6px">配偶者</label>
     <div class="btn-row">
       <button id="bns" onclick="setSp(false)">なし</button>
       <button id="bs" onclick="setSp(true)">あり</button>
     </div>
-
     <div id="sps" style="display:none">
       <label>配偶者の年収：<span class="val" id="sp-o">100万円</span></label>
-      <input type="range" min="0" max="2500000" step="50000" value="1000000" id="sp-s">
+      <div class="sl-wrap">
+        <button class="sl-btn" onclick="adj('sp-s',-1)">－</button>
+        <input type="range" min="0" max="10000000" step="100000" value="1000000" id="sp-s">
+        <button class="sl-btn" onclick="adj('sp-s',1)">＋</button>
+      </div>
       <div class="sp-wall" id="spw"></div>
     </div>
   </div>
 
-  <!-- 現在の年収 -->
   <div class="card">
     <div class="card-title">現在の年収</div>
     <label>年収：<span class="val lg" id="ci-o">400万円</span></label>
-    <input type="range" min="500000" max="15000000" step="100000" value="4000000" id="ci-s">
+    <div class="sl-wrap">
+      <button class="sl-btn" onclick="adj('ci-s',-1)">－</button>
+      <input type="range" min="500000" max="15000000" step="100000" value="4000000" id="ci-s">
+      <button class="sl-btn" onclick="adj('ci-s',1)">＋</button>
+    </div>
     <div class="cliff-warn" id="ci-cliff"></div>
   </div>
 
-  <!-- シミュレーション -->
   <div class="card blue">
     <div class="card-title">シミュレーション設定</div>
-
     <label>シミュレーション年収：<span class="val lg blue" id="si-o">400万円</span></label>
-    <input type="range" min="500000" max="15000000" step="100000" value="4000000" id="si-s">
+    <div class="sl-wrap">
+      <button class="sl-btn" onclick="adj('si-s',-1)">－</button>
+      <input type="range" min="500000" max="15000000" step="100000" value="4000000" id="si-s">
+      <button class="sl-btn" onclick="adj('si-s',1)">＋</button>
+    </div>
     <div id="wa" style="font-size:12px;margin-bottom:8px;min-height:20px;"></div>
     <div class="cliff-warn" id="si-cliff"></div>
-
     <label>ふるさと納税：<span class="val" id="ft-o">0円</span></label>
-    <input type="range" min="0" max="600000" step="5000" value="0" id="ft-s">
+    <div class="sl-wrap">
+      <button class="sl-btn" onclick="adj('ft-s',-1)">－</button>
+      <input type="range" min="0" max="600000" step="5000" value="0" id="ft-s">
+      <button class="sl-btn" onclick="adj('ft-s',1)">＋</button>
+    </div>
     <div class="ft-limit" id="ftl"></div>
-
     <div style="margin-top:10px">
       <label>iDeCo月額掛金：<span class="val" id="id-o">0円/月</span></label>
-      <input type="range" min="0" max="23000" step="1000" value="0" id="id-s">
+      <div class="sl-wrap">
+        <button class="sl-btn" onclick="adj('id-s',-1)">－</button>
+        <input type="range" min="0" max="23000" step="1000" value="0" id="id-s">
+        <button class="sl-btn" onclick="adj('id-s',1)">＋</button>
+      </div>
       <div style="font-size:10px;color:#a0aec0;margin-top:2px">会社員（企業年金なし）上限：23,000円/月</div>
     </div>
   </div>
 
-  <!-- 差額表示 -->
   <div class="diff-box" id="db">
-    <div class="diff-label">年間手取りの変化</div>
+    <div class="diff-label">本人の年間手取り変化</div>
     <div class="diff-val" id="dv"></div>
     <div class="diff-note" id="dn"></div>
   </div>
 
-  <!-- 比較パネル -->
   <div class="compare">
     <div class="pane">
-      <div class="pane-title">現状</div>
+      <div class="pane-title">現状（本人）</div>
       <div class="tedori-box">
         <div class="tedori-label">年間手取り</div>
         <div class="tedori-val" id="chd"></div>
@@ -160,19 +201,100 @@ input[type=range]{width:100%;margin:3px 0 8px;accent-color:#2d5a8e;}
     </div>
   </div>
 
-  <!-- 年収の壁 -->
+  <div class="card green" id="hh-card" style="display:none">
+    <div class="card-title green">世帯合計の手取り</div>
+    <div id="hh-content"></div>
+  </div>
+
   <div class="card">
     <div class="card-title">年収の壁（令和8年・2026年版）</div>
     <div id="wlist"></div>
   </div>
 
-  <!-- 注記 -->
+  <details>
+    <summary>計算ロジックを見る</summary>
+    <div class="logic-body">
+      <div class="logic-sec">
+        <h4>① 社会保険料（会社員・大阪府・協会けんぽ2026年度）</h4>
+        <div class="lf">健康保険  ＝ 標準報酬月額 × 5.065% × 12（上限139万円/月）
+介護保険  ＝ 標準報酬月額 × 0.81% × 12（40歳以上のみ）
+厚生年金  ＝ 標準報酬月額 × 9.15% × 12（上限65万円/月）
+雇用保険  ＝ 年収 × 0.8%
+子育て支援金 ＝ 標準報酬月額 × 0.115% × 12
+社保合計  ＝ 上記5項目の合計</div>
+      </div>
+      <div class="logic-sec">
+        <h4>② 給与所得控除</h4>
+        <table class="lt">
+          <tr><th>年収</th><th>控除額</th></tr>
+          <tr><td>〜162.5万円</td><td>年収×40%（最低74万円）</td></tr>
+          <tr><td>〜180万円</td><td>年収×40%－10万円</td></tr>
+          <tr><td>〜360万円</td><td>年収×30%＋8万円</td></tr>
+          <tr><td>〜660万円</td><td>年収×20%＋44万円</td></tr>
+          <tr><td>〜850万円</td><td>年収×10%＋110万円</td></tr>
+          <tr><td>850万円超</td><td>195万円（上限）</td></tr>
+        </table>
+      </div>
+      <div class="logic-sec">
+        <h4>③ 課税所得・所得税</h4>
+        <div class="lf">給与所得   ＝ 年収 － 給与所得控除
+課税所得   ＝ 給与所得 － 社保合計 － 基礎控除 － 配偶者(特別)控除 － iDeCo年額
+基礎控除   ＝ 104万円（年収665万円以下）/ 62万円（665万円超）
+所得税    ＝ 課税所得 × 税率 － 控除額（下表）× 1.021（復興特別所得税）</div>
+        <table class="lt">
+          <tr><th>課税所得</th><th>税率</th><th>控除額</th></tr>
+          <tr><td>〜195万円</td><td>5%</td><td>0円</td></tr>
+          <tr><td>〜330万円</td><td>10%</td><td>9.75万円</td></tr>
+          <tr><td>〜695万円</td><td>20%</td><td>42.75万円</td></tr>
+          <tr><td>〜900万円</td><td>23%</td><td>63.6万円</td></tr>
+          <tr><td>〜1800万円</td><td>33%</td><td>153.6万円</td></tr>
+          <tr><td>〜4000万円</td><td>40%</td><td>279.6万円</td></tr>
+          <tr><td>4000万円超</td><td>45%</td><td>479.6万円</td></tr>
+        </table>
+      </div>
+      <div class="logic-sec">
+        <h4>④ 住民税</h4>
+        <div class="lf">課税所得（住民税）＝ 給与所得 － 社保合計 － 43万円 － 配偶者(特別)控除 － iDeCo年額
+住民税    ＝ 課税所得 × 10% ＋ 6,000円（均等割＋森林環境税）</div>
+      </div>
+      <div class="logic-sec">
+        <h4>⑤ 配偶者控除・配偶者特別控除（令和8年分）</h4>
+        <table class="lt">
+          <tr><th>配偶者の年収</th><th>給与所得</th><th>所得税控除額</th></tr>
+          <tr><td>〜136万円</td><td>〜62万円</td><td>38万円（配偶者控除）</td></tr>
+          <tr><td>〜173万円</td><td>〜99万円</td><td>38万円（特別控除・満額）</td></tr>
+          <tr><td>〜約207万円</td><td>〜133万円</td><td>段階的減少（6万円/5万円）</td></tr>
+          <tr><td>約207万円超</td><td>133万円超</td><td>0円</td></tr>
+        </table>
+        <p style="color:#718096;margin-top:4px">税負担軽減効果 ＝ 控除額 × （所得税率×1.021 ＋ 住民税10%）</p>
+      </div>
+      <div class="logic-sec">
+        <h4>⑥ 配偶者の社会保険料（社保加入ライン）</h4>
+        <div class="lf">年収106万円未満 → 世帯主の扶養内（社保本人負担なし）
+年収106万円以上 → 社保加入（健康保険・厚生年金等を自己負担）
+年収130万円以上 → 扶養から外れ（社保を全額自己負担）
+
+※配偶者の計算は大阪府・協会けんぽ同率を使用
+※配偶者の介護保険は世帯主と同年齢で計算</div>
+      </div>
+      <div class="logic-sec">
+        <h4>⑦ ふるさと納税の上限・節税効果</h4>
+        <div class="lf">上限目安 ＝ 住民税所得割額 × 0.2 ÷ (1 － 所得税率×1.021 － 0.10)
+節税効果 ＝ 寄付額 － 2,000円（住民税・所得税から控除）</div>
+      </div>
+      <div class="logic-sec">
+        <h4>⑧ iDeCo節税効果</h4>
+        <div class="lf">iDeCo節税額 ＝ 年間掛金 × （所得税率 ＋ 10%）</div>
+      </div>
+    </div>
+  </details>
+
   <div class="notice">
     <strong>計算条件（大阪府・令和8年分）</strong><br>
     健康保険10.13%（本人5.065%）・介護1.62%（40歳以上）・厚生年金18.3%（本人9.15%）・雇用保険0.8%・子育て支援金0.115%（2026年4月〜）・基礎控除104万円（年収665万円以下）62万円（超）・給与所得控除最低74万円・住民税基礎控除43万円・住民税10%＋均等割6千円（森林環境税含む）。配偶者控除136万円・特別控除満額173万円（令和8年分）。年末調整・確定申告後の概算値。実際の税額は税理士等にご相談ください。
   </div>
 
-</div><!-- /container -->
+</div>
 
 <script>
 var S={age:40,emp:true,hasSp:false,spI:1000000,cI:4000000,sI:4000000,ft:0,id:0};
@@ -189,6 +311,13 @@ var WS=[
 
 function fm(n){var a=Math.abs(Math.round(n));if(a===0)return'0円';return a>=10000?Math.round(a/10000)+'万円':a.toLocaleString('ja-JP')+'円';}
 function fs(n){return(n>=0?'+':'-')+fm(n);}
+
+function adj(id,dir){
+  var el=document.getElementById(id);
+  var step=parseFloat(el.step)||1,mn=parseFloat(el.min),mx=parseFloat(el.max);
+  el.value=Math.min(mx,Math.max(mn,parseFloat(el.value)+dir*step));
+  el.dispatchEvent(new Event('input'));
+}
 
 function kk(y){
   var b;
@@ -223,6 +352,14 @@ function hk(spI){
   return Math.max(0,380000-(steps+1)*60000);
 }
 
+function hkLabel(spI){
+  var sh=Math.max(0,spI-kk(spI)),amt=hk(spI);
+  if(sh<=620000)return'配偶者控除 38万円';
+  if(sh<=990000)return'配偶者特別控除 38万円（満額）';
+  if(amt>0)return'配偶者特別控除 '+fm(amt)+'（逓減）';
+  return'控除なし 0円';
+}
+
 function calc(inc,ft,idm){
   var iA=idm*12,h=0,nu=0,pe=0,ei=0,sk=0;
   if(S.emp&&inc>0){
@@ -234,11 +371,29 @@ function calc(inc,ft,idm){
   var si=h+nu+pe+ei+sk,kj=kk(inc),sh=Math.max(0,inc-kj),hkv=hk(S.spI),kiso=ki(inc);
   var tax=Math.max(0,sh-si-kiso-hkv-iA),t=txr(tax);
   var it=Math.round(Math.max(0,tax*t.r-t.d)*1.021);
-  var jt=Math.max(0,sh-si-430000-hkv-iA),js=Math.round(jt*0.10),jx=js+6000;
+  var jt=Math.max(0,sh-si-430000-hkv-iA),js=Math.round(jt*0.10),jx=js>0?(js+6000):0;
   var fL=0,fE=0;
   if(js>0){fL=Math.round(js*0.2/(1-t.r*1.021-0.10));if(ft>2000){var uf=Math.min(ft,fL+2000);fE=Math.max(0,uf-2000);}}
   var hdv=Math.max(0,inc-si-it-jx+fE),er=inc>0?((si+it+jx)/inc*100):0;
-  return{inc,h,nu,pe,ei,sk,si,it,jx,fE,fL,iEf:Math.round(iA*(t.r+0.10)),hd:hdv,er:er.toFixed(1),tr:t.r};
+  return{inc,h,nu,pe,ei,sk,si,it,jx,fE,fL,iEf:Math.round(iA*(t.r+0.10)),hd:hdv,er:er.toFixed(1),tr:t.r,hkv:hkv};
+}
+
+function calcSpouse(spI){
+  if(spI===0)return{spI:0,h:0,nu:0,pe:0,ei:0,sk:0,si:0,it:0,jx:0,hd:0,er:'0.0',hasSI:false};
+  var h=0,nu=0,pe=0,ei=0,sk=0,hasSI=spI>=1060000;
+  if(hasSI){
+    var mo=spI/12,pb=Math.min(mo,650000),hb=Math.min(mo,1390000);
+    h=Math.round(hb*0.05065*12);pe=Math.round(pb*0.0915*12);
+    ei=Math.round(spI*0.008);sk=Math.round(hb*0.00115*12);
+    if(S.age>=40)nu=Math.round(hb*0.0081*12);
+  }
+  var si=h+nu+pe+ei+sk,kj=kk(spI),gsh=Math.max(0,spI-kj),kiso=ki(spI);
+  var tax=Math.max(0,gsh-si-kiso),t=txr(tax);
+  var it=Math.round(Math.max(0,tax*t.r-t.d)*1.021);
+  var jBase=Math.max(0,gsh-si-430000),js=Math.round(jBase*0.10);
+  var jx=js>0?(js+6000):0;
+  var hd=Math.max(0,spI-si-it-jx),er=spI>0?((si+it+jx)/spI*100):0;
+  return{spI,h,nu,pe,ei,sk,si,it,jx,hd,er:er.toFixed(1),hasSI};
 }
 
 function det(r,id){
@@ -260,6 +415,58 @@ function det(r,id){
   if(r.iEf>0)html+='<div class="detail-row"><span class="det-lbl">iDeCo節税</span><span class="det-pl">+'+fm(r.iEf)+'</span></div>';
   html+='<div class="detail-row" style="border-top:1px solid #e2e8f0;margin-top:2px;padding-top:4px"><span class="det-lbl">実効負担率</span><span style="font-size:11px;font-weight:600">'+r.er+'%</span></div>';
   e.innerHTML=html;
+}
+
+function hhContent(cur,sim,sp){
+  var curHH=cur.hd+sp.hd,simHH=sim.hd+sp.hd,diff=simHH-curHH;
+  var html='';
+  html+='<div class="hh-grid">';
+  html+='<div class="hh-pane"><div class="hh-pane-title">現状</div>';
+  html+='<div class="hh-row"><span>本人</span><span style="font-weight:600">'+fm(cur.hd)+'</span></div>';
+  html+='<div class="hh-row"><span>配偶者</span><span style="font-weight:600">'+fm(sp.hd)+'</span></div>';
+  html+='<div class="hh-total-row"><span>世帯合計</span><span style="color:#276749">'+fm(curHH)+'</span></div>';
+  html+='</div>';
+  html+='<div class="hh-pane sim"><div class="hh-pane-title">シミュレーション後</div>';
+  html+='<div class="hh-row"><span>本人</span><span style="font-weight:600;color:#2d5a8e">'+fm(sim.hd)+'</span></div>';
+  html+='<div class="hh-row"><span>配偶者</span><span style="font-weight:600">'+fm(sp.hd)+'</span></div>';
+  html+='<div class="hh-total-row"><span>世帯合計</span><span style="color:#2d5a8e">'+fm(simHH)+'</span></div>';
+  html+='</div></div>';
+  if(S.cI!==S.sI||S.ft>0||S.id>0){
+    html+='<div class="hh-diff '+(diff>=0?'pos':'neg')+'">';
+    html+='<div class="hh-diff-label">世帯手取りの変化</div>';
+    html+='<div class="hh-diff-val '+(diff>=0?'pos':'neg')+'">'+fs(diff)+'</div>';
+    html+='</div>';
+  }
+  html+='<div class="sp-detail-title">配偶者の内訳（年収 '+fm(sp.spI)+'）</div>';
+  html+='<div class="sp-si-box">';
+  html+='<div style="font-size:11px;font-weight:700;color:#c53030;margin-bottom:6px">社会保険料の自己負担</div>';
+  if(sp.hasSI){
+    html+='<div class="detail-row"><span class="det-lbl">健康保険（本人分）</span><span class="det-mn">-'+fm(sp.h)+'</span></div>';
+    if(sp.nu>0)html+='<div class="detail-row"><span class="det-lbl">介護保険</span><span class="det-mn">-'+fm(sp.nu)+'</span></div>';
+    html+='<div class="detail-row"><span class="det-lbl">厚生年金（本人分）</span><span class="det-mn">-'+fm(sp.pe)+'</span></div>';
+    html+='<div class="detail-row"><span class="det-lbl">雇用保険</span><span class="det-mn">-'+fm(sp.ei)+'</span></div>';
+    html+='<div class="detail-row"><span class="det-lbl">子育て支援金</span><span class="det-mn">-'+fm(sp.sk)+'</span></div>';
+    html+='<div class="detail-row" style="border-top:1px solid #e2e8f0;margin-top:2px;padding-top:4px"><span class="det-lbl" style="font-weight:600">社保計</span><span class="det-mn">-'+fm(sp.si)+'</span></div>';
+  }else{
+    html+='<div style="font-size:11px;color:#718096;padding:4px 0">年収106万円未満のため社会保険は世帯主の扶養内（本人負担なし）</div>';
+  }
+  html+='<div class="detail-row"><span class="det-lbl">所得税</span><span class="det-mn">-'+fm(sp.it)+'</span></div>';
+  html+='<div class="detail-row"><span class="det-lbl">住民税</span><span class="det-mn">-'+fm(sp.jx)+'</span></div>';
+  html+='<div class="detail-row"><span class="det-lbl">実効負担率</span><span style="font-size:11px;font-weight:600">'+sp.er+'%</span></div>';
+  html+='</div>';
+  var hkv=hk(S.spI),hkvL=hkLabel(S.spI);
+  html+='<div class="deduction-box">';
+  html+='<div style="font-size:11px;font-weight:700;color:#276749;margin-bottom:6px">世帯主の所得控除への影響</div>';
+  html+='<div class="detail-row"><span class="det-lbl">適用控除</span><span class="det-pl">'+hkvL+'</span></div>';
+  if(hkv>0){
+    var saving=Math.round(hkv*(sim.tr*1.021+0.10));
+    html+='<div class="detail-row"><span class="det-lbl">税負担の軽減効果（概算）</span><span class="det-pl">約'+fm(saving)+'</span></div>';
+    html+='<div style="font-size:10px;color:#718096;margin-top:4px">= '+fm(hkv)+'控除 × （所得税'+Math.round(sim.tr*100)+'%×1.021 ＋ 住民税10%）</div>';
+  }else{
+    html+='<div style="font-size:10px;color:#e53e3e;margin-top:4px">配偶者収入が多いため世帯主の控除はありません</div>';
+  }
+  html+='</div>';
+  return html;
 }
 
 function wlist(inc){
@@ -288,6 +495,11 @@ function upd(){
     dv.textContent=fs(diff);
     document.getElementById('dn').textContent=cur.hd>0?'変化率: '+(diff/cur.hd*100).toFixed(1)+'%':'';
   }else{db.style.display='none';}
+  var hhCard=document.getElementById('hh-card');
+  if(S.hasSp){
+    document.getElementById('hh-content').innerHTML=hhContent(cur,sim,calcSpouse(S.spI));
+    hhCard.style.display='block';
+  }else{hhCard.style.display='none';}
   wlist(S.sI);
   var fl=document.getElementById('ftl');
   fl.textContent=sim.fL>0?'推定上限額: '+fm(sim.fL)+'（目安）':'';
