@@ -369,12 +369,13 @@ details[open] summary::after{content:'▲';}
       <div class="logic-sec">
         <h4>⑨ 配偶者控除・配偶者特別控除（令和8年分）</h4>
         <table class="lt">
-          <tr><th>配偶者の年収</th><th>給与所得</th><th>所得税控除額</th></tr>
-          <tr><td>〜136万円</td><td>〜62万円</td><td>38万円（配偶者控除）</td></tr>
-          <tr><td>〜173万円</td><td>〜99万円</td><td>38万円（特別控除・満額）</td></tr>
-          <tr><td>〜約207万円</td><td>〜133万円</td><td>段階的減少</td></tr>
-          <tr><td>約207万円超</td><td>133万円超</td><td>0円</td></tr>
+          <tr><th>配偶者の年収</th><th>給与所得（合計所得）</th><th>所得税控除額</th></tr>
+          <tr><td>〜178万円</td><td>〜104万円</td><td>38万円（配偶者控除）</td></tr>
+          <tr><td>〜225万円</td><td>〜150万円</td><td>38万円（特別控除・満額）</td></tr>
+          <tr><td>〜276万円</td><td>〜185万円</td><td>段階的減少</td></tr>
+          <tr><td>276万円超</td><td>185万円超</td><td>0円</td></tr>
         </table>
+        <div class="lf" style="margin-top:6px">※令和8年（2026年）1月1日以降の収入から適用。所得税の壁のみ。社会保険（106万・130万）は別途。</div>
       </div>
       <div class="logic-sec">
         <h4>⑩ ふるさと納税の節税効果</h4>
@@ -400,10 +401,9 @@ var S={age:40,emp:true,hasSp:false,spI:1000000,cI:4000000,sI:4000000,ft:0,id:0,c
 var WS=[
   {a:1060000,l:'106万円の壁',n:'社会保険加入（51人以上・2026年10月廃止予定）'},
   {a:1300000,l:'130万円の壁',n:'被扶養者（扶養）の上限（社会保険）'},
-  {a:1360000,l:'136万円の壁',n:'配偶者控除・所得税の境界（令和8年分）'},
-  {a:1730000,l:'173万円の壁',n:'配偶者特別控除の満額ライン（令和8年分）'},
-  {a:1780000,l:'178万円の壁',n:'所得税非課税ライン（令和8年分：給与所得控除74万＋基礎控除104万）'},
-  {a:2010000,l:'約201万円の壁',n:'配偶者特別控除がゼロになる（世帯主側の影響）'},
+  {a:1780000,l:'178万円の壁',n:'所得税非課税ライン・配偶者控除の境界（令和8年分：給与所得控除74万＋基礎控除104万）'},
+  {a:2250000,l:'225万円の壁',n:'配偶者特別控除 満額（38万円）ラインの上限（令和8年分）'},
+  {a:2760000,l:'276万円の壁',n:'配偶者特別控除がゼロになる（世帯主側の影響）（令和8年分）'},
 ];
 
 function fm(n){var a=Math.abs(Math.round(n));if(a===0)return'0円';return a>=10000?Math.round(a/10000)+'万円':a.toLocaleString('ja-JP')+'円';}
@@ -453,17 +453,20 @@ function txr(t){
 function hk(spI){
   if(!S.hasSp)return 0;
   var sh=Math.max(0,spI-kk(spI));
-  if(sh<=620000)return 380000;
-  if(sh<=990000)return 380000;
-  if(sh>1330000)return 0;
-  var steps=Math.floor((sh-990000)/50000);
+  // 令和8年：配偶者控除は合計所得104万円以下（収入178万円以下）
+  if(sh<=1040000)return 380000;
+  // 配偶者特別控除満額は合計所得約150万円以下（収入約225万円以下）
+  if(sh<=1500000)return 380000;
+  // 合計所得約185万円超（収入276万円超）でゼロ
+  if(sh>1852000)return 0;
+  var steps=Math.floor((sh-1500000)/50000);
   return Math.max(0,380000-(steps+1)*60000);
 }
 
 function hkLabel(spI){
   var sh=Math.max(0,spI-kk(spI)),amt=hk(spI);
-  if(sh<=620000)return'配偶者控除 38万円';
-  if(sh<=990000)return'配偶者特別控除 38万円（満額）';
+  if(sh<=1040000)return'配偶者控除 38万円';
+  if(sh<=1500000)return'配偶者特別控除 38万円（満額）';
   if(amt>0)return'配偶者特別控除 '+fm(amt)+'（逓減）';
   return'控除なし 0円';
 }
@@ -731,12 +734,12 @@ function upd(){
   wa.innerHTML=wm;
   if(S.hasSp){
     var sw=document.getElementById('spw'),st='';
-    if(S.spI>=2010000)st='<span class="sp-tag sp-over">201万円超（特別控除ゼロ）</span>';
-    else if(S.spI>=1730000)st='<span class="sp-tag sp-over">173万円超（特別控除逓減）</span>';
-    else if(S.spI>=1360000)st='<span class="sp-tag sp-over">136万円超（配偶者控除なし）</span>';
+    if(S.spI>=2760000)st='<span class="sp-tag sp-over">276万円超（特別控除ゼロ）</span>';
+    else if(S.spI>=2250000)st='<span class="sp-tag sp-over">225万円超（特別控除逓減）</span>';
+    else if(S.spI>=1780000)st='<span class="sp-tag sp-over">178万円超（配偶者控除なし・特別控除満額）</span>';
     else if(S.spI>=1300000)st='<span class="sp-tag sp-over">130万円超（扶養外）</span>';
     else if(S.spI>=1060000)st='<span class="sp-tag sp-over">106万円超（社保加入）</span>';
-    else st='<span class="sp-tag sp-ok">扶養内</span>';
+    else st='<span class="sp-tag sp-ok">扶養内（178万円以下）</span>';
     sw.innerHTML=st;
   }
 }
