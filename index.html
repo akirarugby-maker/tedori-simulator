@@ -34,13 +34,17 @@ label{font-size:12px;color:#4a5568;display:block;margin-bottom:3px;}
 .compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
 .pane{background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,0.08);}
 .pane.sim{border-top:3px solid #2d5a8e;}
+.pane.sim-sp{border-top:3px solid #b03060;}
 .pane-title{font-size:12px;font-weight:700;text-align:center;margin-bottom:10px;color:#4a5568;}
 .pane.sim .pane-title{color:#2d5a8e;}
+.pane.sim-sp .pane-title{color:#b03060;}
 .tedori-box{background:#f7fafc;border-radius:8px;padding:10px;text-align:center;margin-bottom:10px;}
 .pane.sim .tedori-box{background:#eff6ff;}
+.pane.sim-sp .tedori-box{background:#fff0f5;}
 .tedori-label{font-size:10px;color:#718096;margin-bottom:2px;}
 .tedori-val{font-size:22px;font-weight:700;color:#1a202c;}
 .pane.sim .tedori-val{color:#2d5a8e;}
+.pane.sim-sp .tedori-val{color:#b03060;}
 .detail-row{display:flex;justify-content:space-between;padding:3px 0;font-size:11px;border-bottom:1px solid #f0f0f0;}
 .detail-row:last-child{border:none;}
 .det-lbl{color:#718096;}
@@ -116,6 +120,22 @@ details[open] summary::after{content:'▲';}
 .lt th{background:#e2e8f0;padding:4px 6px;text-align:left;}
 .lt td{padding:4px 6px;border-bottom:1px solid #f0f0f0;}
 .info-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:8px 10px;font-size:11px;color:#1e40af;margin-bottom:8px;}
+/* 2カラムレイアウト */
+#income-area{display:grid;grid-template-columns:1fr;gap:0;}
+#income-area.couple{grid-template-columns:1fr 1fr;gap:8px;}
+#income-area.couple .card{margin-bottom:8px;}
+.col-header{font-size:12px;font-weight:700;text-align:center;padding:8px;border-radius:10px;margin-bottom:6px;color:#fff;}
+.col-header.otto{background:#2d5a8e;}
+.col-header.tsuma{background:#b03060;}
+/* スマホ2カラム時の調整 */
+@media(max-width:480px){
+  #income-area.couple .card{padding:10px;}
+  #income-area.couple .card-title{font-size:11px;}
+  #income-area.couple label{font-size:11px;}
+  #income-area.couple .val.lg{font-size:16px;}
+  #income-area.couple .sl-btn{width:28px;height:28px;font-size:16px;}
+  #income-area.couple .hint{font-size:9px;}
+}
 </style>
 </head>
 <body>
@@ -144,15 +164,6 @@ details[open] summary::after{content:'▲';}
       <button id="bns" onclick="setSp(false)">なし</button>
       <button id="bs" onclick="setSp(true)">あり</button>
     </div>
-    <div id="sps" style="display:none">
-      <label>配偶者の年収：<span class="val" id="sp-o">100万円</span></label>
-      <div class="sl-wrap">
-        <button class="sl-btn" onclick="adj('sp-s',-1)">－</button>
-        <input type="range" min="0" max="10000000" step="100000" value="1000000" id="sp-s">
-        <button class="sl-btn" onclick="adj('sp-s',1)">＋</button>
-      </div>
-      <div class="sp-wall" id="spw"></div>
-    </div>
   </div>
 
   <!-- 扶養家族 -->
@@ -167,42 +178,89 @@ details[open] summary::after{content:'▲';}
     </div>
   </div>
 
-  <!-- 現在の年収 -->
-  <div class="card">
-    <div class="card-title">現在の年収</div>
-    <label>年収：<span class="val lg" id="ci-o">400万円</span></label>
-    <div class="sl-wrap">
-      <button class="sl-btn" onclick="adj('ci-s',-1)">－</button>
-      <input type="range" min="500000" max="15000000" step="100000" value="4000000" id="ci-s">
-      <button class="sl-btn" onclick="adj('ci-s',1)">＋</button>
-    </div>
-  </div>
-
-  <!-- シミュレーション設定 -->
-  <div class="card blue">
-    <div class="card-title">シミュレーション設定</div>
-    <label>シミュレーション年収：<span class="val lg blue" id="si-o">400万円</span></label>
-    <div class="sl-wrap">
-      <button class="sl-btn" onclick="adj('si-s',-1)">－</button>
-      <input type="range" min="500000" max="15000000" step="100000" value="4000000" id="si-s">
-      <button class="sl-btn" onclick="adj('si-s',1)">＋</button>
-    </div>
-    <div id="wa" style="font-size:12px;margin-bottom:8px;min-height:20px;"></div>
-    <label>ふるさと納税：<span class="val" id="ft-o">0円</span></label>
-    <div class="sl-wrap">
-      <button class="sl-btn" onclick="adj('ft-s',-1)">－</button>
-      <input type="range" min="0" max="600000" step="5000" value="0" id="ft-s">
-      <button class="sl-btn" onclick="adj('ft-s',1)">＋</button>
-    </div>
-    <div class="ft-limit" id="ftl"></div>
-    <div style="margin-top:10px">
-      <label>iDeCo月額掛金：<span class="val" id="id-o">0円/月</span></label>
-      <div class="sl-wrap">
-        <button class="sl-btn" onclick="adj('id-s',-1)">－</button>
-        <input type="range" min="0" max="23000" step="1000" value="0" id="id-s">
-        <button class="sl-btn" onclick="adj('id-s',1)">＋</button>
+  <!-- 年収入力エリア: 配偶者なしは1カラム、ありは2カラム -->
+  <div id="income-area">
+    <!-- 夫/本人カラム（常に表示） -->
+    <div id="otto-col">
+      <div class="col-header otto" id="otto-header" style="display:none">夫（本人）</div>
+      <!-- 現在の年収 -->
+      <div class="card">
+        <div class="card-title">現在の年収</div>
+        <label>年収：<span class="val lg" id="ci-o">400万円</span></label>
+        <div class="sl-wrap">
+          <button class="sl-btn" onclick="adj('ci-s',-1)">－</button>
+          <input type="range" min="500000" max="15000000" step="100000" value="4000000" id="ci-s">
+          <button class="sl-btn" onclick="adj('ci-s',1)">＋</button>
+        </div>
       </div>
-      <div class="hint">会社員（企業年金なし）上限：23,000円/月 ／ iDeCo↑ → ふるさと納税上限↓（課税所得減による）</div>
+      <!-- シミュレーション設定 -->
+      <div class="card blue">
+        <div class="card-title">シミュレーション設定</div>
+        <label>シミュレーション年収：<span class="val lg blue" id="si-o">400万円</span></label>
+        <div class="sl-wrap">
+          <button class="sl-btn" onclick="adj('si-s',-1)">－</button>
+          <input type="range" min="500000" max="15000000" step="100000" value="4000000" id="si-s">
+          <button class="sl-btn" onclick="adj('si-s',1)">＋</button>
+        </div>
+        <div id="wa" style="font-size:12px;margin-bottom:8px;min-height:20px;"></div>
+        <label>ふるさと納税：<span class="val" id="ft-o">0円</span></label>
+        <div class="sl-wrap">
+          <button class="sl-btn" onclick="adj('ft-s',-1)">－</button>
+          <input type="range" min="0" max="600000" step="5000" value="0" id="ft-s">
+          <button class="sl-btn" onclick="adj('ft-s',1)">＋</button>
+        </div>
+        <div class="ft-limit" id="ftl"></div>
+        <div style="margin-top:10px">
+          <label>iDeCo月額掛金：<span class="val" id="id-o">0円/月</span></label>
+          <div class="sl-wrap">
+            <button class="sl-btn" onclick="adj('id-s',-1)">－</button>
+            <input type="range" min="0" max="23000" step="1000" value="0" id="id-s">
+            <button class="sl-btn" onclick="adj('id-s',1)">＋</button>
+          </div>
+          <div class="hint">会社員（企業年金なし）上限：23,000円/月 ／ iDeCo↑ → ふるさと納税上限↓（課税所得減による）</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 妻/配偶者カラム（配偶者ありのみ表示） -->
+    <div id="tsuma-col" style="display:none">
+      <div class="col-header tsuma">妻（配偶者）</div>
+      <!-- 妻の基本情報 -->
+      <div class="card">
+        <div class="card-title" style="color:#c05070">妻の基本情報</div>
+        <label>年齢：<span class="val" id="sp-age-o">35歳</span></label>
+        <div class="sl-wrap">
+          <button class="sl-btn" onclick="adj('sp-age-s',-1)">－</button>
+          <input type="range" min="20" max="75" value="35" id="sp-age-s">
+          <button class="sl-btn" onclick="adj('sp-age-s',1)">＋</button>
+        </div>
+        <label style="margin-bottom:6px">雇用形態</label>
+        <div class="btn-row">
+          <button id="sp-be" onclick="setSpEmp(true)">会社員（社保加入）</button>
+          <button id="sp-bf" onclick="setSpEmp(false)">社保なし／自営業</button>
+        </div>
+      </div>
+      <!-- 妻の現在の年収 -->
+      <div class="card">
+        <div class="card-title">現在の年収</div>
+        <label>年収：<span class="val lg" id="spci-o">100万円</span></label>
+        <div class="sl-wrap">
+          <button class="sl-btn" onclick="adj('spci-s',-1)">－</button>
+          <input type="range" min="0" max="10000000" step="100000" value="1000000" id="spci-s">
+          <button class="sl-btn" onclick="adj('spci-s',1)">＋</button>
+        </div>
+      </div>
+      <!-- 妻のシミュレーション設定 -->
+      <div class="card blue">
+        <div class="card-title">シミュレーション設定</div>
+        <label>シミュレーション年収：<span class="val lg blue" id="spsi-o">100万円</span></label>
+        <div class="sl-wrap">
+          <button class="sl-btn" onclick="adj('spsi-s',-1)">－</button>
+          <input type="range" min="0" max="10000000" step="100000" value="1000000" id="spsi-s">
+          <button class="sl-btn" onclick="adj('spsi-s',1)">＋</button>
+        </div>
+        <div class="sp-wall" id="spw"></div>
+      </div>
     </div>
   </div>
 
@@ -251,7 +309,7 @@ details[open] summary::after{content:'▲';}
     <div class="diff-note" id="dn"></div>
   </div>
 
-  <!-- 比較パネル -->
+  <!-- 比較パネル（本人） -->
   <div class="compare">
     <div class="pane">
       <div class="pane-title">現状（本人）</div>
@@ -268,6 +326,26 @@ details[open] summary::after{content:'▲';}
         <div class="tedori-val" id="shd"></div>
       </div>
       <div id="sdt"></div>
+    </div>
+  </div>
+
+  <!-- 比較パネル（妻） -->
+  <div class="compare" id="sp-compare" style="display:none">
+    <div class="pane">
+      <div class="pane-title">現状（妻）</div>
+      <div class="tedori-box">
+        <div class="tedori-label">年間手取り</div>
+        <div class="tedori-val" id="sp-chd"></div>
+      </div>
+      <div id="sp-cdt"></div>
+    </div>
+    <div class="pane sim-sp">
+      <div class="pane-title">シミュレーション後（妻）</div>
+      <div class="tedori-box">
+        <div class="tedori-label">年間手取り</div>
+        <div class="tedori-val" id="sp-shd"></div>
+      </div>
+      <div id="sp-sdt"></div>
     </div>
   </div>
 
@@ -396,7 +474,10 @@ details[open] summary::after{content:'▲';}
 </div>
 
 <script>
-var S={age:40,emp:true,hasSp:false,spI:1000000,cI:4000000,sI:4000000,ft:0,id:0,children:[],ins:0,quake:0,med:0,hloan:0};
+var S={age:40,emp:true,hasSp:false,spAge:35,spEmp:true,
+       cI:4000000,sI:4000000,
+       spCI:1000000,spSI:1000000,
+       ft:0,id:0,children:[],ins:0,quake:0,med:0,hloan:0};
 
 var WS=[
   {a:1060000,l:'106万円の壁',n:'社会保険加入（51人以上・2026年10月廃止予定）'},
@@ -436,8 +517,6 @@ function kk(y){
   return Math.min(b,y);
 }
 
-// 令和8年基礎控除：合計所得2,350万円以下（年収換算で約2,545万円以下）は全員104万円
-// スライダー最大1,500万円の範囲では常に104万円が適用される
 function ki(){return 1040000;}
 
 function txr(t){
@@ -450,21 +529,18 @@ function txr(t){
   return{r:0.45,d:4796000};
 }
 
-function hk(spI){
+function hk(spInc){
   if(!S.hasSp)return 0;
-  var sh=Math.max(0,spI-kk(spI));
-  // 令和8年：配偶者控除は合計所得104万円以下（収入178万円以下）
+  var sh=Math.max(0,spInc-kk(spInc));
   if(sh<=1040000)return 380000;
-  // 配偶者特別控除満額は合計所得約150万円以下（収入約225万円以下）
   if(sh<=1500000)return 380000;
-  // 合計所得約185万円超（収入276万円超）でゼロ
   if(sh>1852000)return 0;
   var steps=Math.floor((sh-1500000)/50000);
   return Math.max(0,380000-(steps+1)*60000);
 }
 
-function hkLabel(spI){
-  var sh=Math.max(0,spI-kk(spI)),amt=hk(spI);
+function hkLabel(spInc){
+  var sh=Math.max(0,spInc-kk(spInc)),amt=hk(spInc);
   if(sh<=1040000)return'配偶者控除 38万円';
   if(sh<=1500000)return'配偶者特別控除 38万円（満額）';
   if(amt>0)return'配偶者特別控除 '+fm(amt)+'（逓減）';
@@ -547,7 +623,8 @@ function updateFuyouSummary(){
   document.getElementById('fuyou-summary-body').innerHTML=html;
 }
 
-function calc(inc,ft,idm,useExtra){
+function calc(inc,ft,idm,useExtra,spInc){
+  if(spInc===undefined)spInc=0;
   var fuyou=calcFuyou();
   var iA=idm*12,h=0,nu=0,pe=0,ei=0,sk=0;
   if(S.emp&&inc>=1060000){
@@ -558,9 +635,8 @@ function calc(inc,ft,idm,useExtra){
   } else if(S.emp&&inc>0){
     ei=Math.round(inc*0.006);
   }
-  var si=h+nu+pe+ei+sk,kj=kk(inc),sh=Math.max(0,inc-kj),hkv=hk(S.spI),kiso=ki();
+  var si=h+nu+pe+ei+sk,kj=kk(inc),sh=Math.max(0,inc-kj),hkv=hk(spInc),kiso=ki();
 
-  // その他所得控除（シミュレーション側のみ）
   var insIt=useExtra?(S.ins||0):0;
   var quakeIt=useExtra?(S.quake||0):0;
   var medAmt=useExtra?(S.med||0):0;
@@ -572,15 +648,12 @@ function calc(inc,ft,idm,useExtra){
 
   var tax=Math.max(0,sh-si-kiso-hkv-fuyou.it-iA-otherIt),t=txr(tax);
   var itBefore=Math.round(Math.max(0,tax*t.r-t.d)*1.021);
-  // 住宅ローン控除（税額控除）：所得税から優先控除
   var hloanIt=Math.min(hloanAmt,itBefore);
   var it=itBefore-hloanIt;
   var hloanRemain=hloanAmt-hloanIt;
 
-  // 住民税
   var jtBase=Math.max(0,sh-si-430000-hkv-fuyou.jt-iA-otherJt);
   var js=Math.round(jtBase*0.10);
-  // 住宅ローン控除の住民税分（所得税で控除しきれない残額、上限：課税所得×7% と136,500円の低い方）
   var hloanJtMax=Math.min(Math.round(jtBase*0.07),136500);
   var hloanJt=Math.min(hloanRemain,hloanJtMax);
   var jxRaw=js>0?(js+6000):0;
@@ -600,13 +673,15 @@ function calc(inc,ft,idm,useExtra){
 
 function calcSpouse(spI){
   if(spI===0)return{spI:0,h:0,nu:0,pe:0,ei:0,sk:0,si:0,it:0,jx:0,hd:0,er:'0.0',hasSI:false};
-  var h=0,nu=0,pe=0,ei=0,sk=0,hasSI=spI>=1060000;
+  var h=0,nu=0,pe=0,ei=0,sk=0;
+  var hasSI=S.spEmp&&spI>=1060000;
   if(hasSI){
     var mo=spI/12,pb=Math.min(mo,650000),hb=Math.min(mo,1390000);
     h=Math.round(hb*0.05065*12);pe=Math.round(pb*0.0915*12);
     ei=Math.round(spI*0.006);sk=Math.round(hb*0.00115*12);
-    // 配偶者の年齢不明のため世帯主年齢で近似
-    if(S.age>=40)nu=Math.round(hb*0.0081*12);
+    if(S.spAge>=40)nu=Math.round(hb*0.0081*12);
+  } else if(S.spEmp&&spI>0){
+    ei=Math.round(spI*0.006);
   }
   var si=h+nu+pe+ei+sk,kj=kk(spI),gsh=Math.max(0,spI-kj),kiso=ki();
   var tax=Math.max(0,gsh-si-kiso),t=txr(tax);
@@ -650,39 +725,43 @@ function det(r,id){
   e.innerHTML=html;
 }
 
-function hhContent(cur,sim,sp){
-  var curHH=cur.hd+sp.hd,simHH=sim.hd+sp.hd,diff=simHH-curHH;
+function detSp(r,id){
+  var e=document.getElementById(id),html='';
+  html+='<div class="det-sec">社会保険料</div>';
+  if(S.spEmp){
+    if(r.h>0)html+='<div class="detail-row"><span class="det-lbl">健康保険</span><span class="det-mn">-'+fm(r.h)+'</span></div>';
+    if(r.nu>0)html+='<div class="detail-row"><span class="det-lbl">介護保険</span><span class="det-mn">-'+fm(r.nu)+'</span></div>';
+    if(r.pe>0)html+='<div class="detail-row"><span class="det-lbl">厚生年金</span><span class="det-mn">-'+fm(r.pe)+'</span></div>';
+    if(r.ei>0)html+='<div class="detail-row"><span class="det-lbl">雇用保険</span><span class="det-mn">-'+fm(r.ei)+'</span></div>';
+    if(r.sk>0)html+='<div class="detail-row"><span class="det-lbl">子育て支援金</span><span class="det-mn">-'+fm(r.sk)+'</span></div>';
+    if(r.h===0&&r.pe===0)html+='<div class="detail-row"><span class="det-lbl" style="font-size:10px">年収106万円未満のため社保加入対象外</span></div>';
+  }else{
+    html+='<div class="detail-row"><span class="det-lbl" style="font-size:10px">（別途国保・国民年金）</span></div>';
+  }
+  html+='<div class="detail-row" style="border-top:1px solid #e2e8f0;margin-top:2px;padding-top:4px"><span class="det-lbl" style="font-weight:600">社保計</span><span class="det-mn">-'+fm(r.si)+'</span></div>';
+  html+='<div class="det-sec">税金</div>';
+  html+='<div class="detail-row"><span class="det-lbl">所得税</span><span class="det-mn">-'+fm(r.it)+'</span></div>';
+  html+='<div class="detail-row"><span class="det-lbl">住民税</span><span class="det-mn">-'+fm(r.jx)+'</span></div>';
+  html+='<div class="detail-row" style="border-top:1px solid #e2e8f0;margin-top:2px;padding-top:4px"><span class="det-lbl">実効負担率</span><span style="font-size:11px;font-weight:600">'+r.er+'%</span></div>';
+  e.innerHTML=html;
+}
+
+function hhContent(cur,sim,curSP,simSP){
+  var curHH=cur.hd+curSP.hd,simHH=sim.hd+simSP.hd,diff=simHH-curHH;
   var html='<div class="hh-grid">';
   html+='<div class="hh-pane"><div class="hh-pane-title">現状</div>';
-  html+='<div class="hh-row"><span>本人</span><span style="font-weight:600">'+fm(cur.hd)+'</span></div>';
-  html+='<div class="hh-row"><span>配偶者</span><span style="font-weight:600">'+fm(sp.hd)+'</span></div>';
+  html+='<div class="hh-row"><span>夫（本人）</span><span style="font-weight:600">'+fm(cur.hd)+'</span></div>';
+  html+='<div class="hh-row"><span>妻（配偶者）</span><span style="font-weight:600">'+fm(curSP.hd)+'</span></div>';
   html+='<div class="hh-total-row"><span>世帯合計</span><span style="color:#276749">'+fm(curHH)+'</span></div></div>';
   html+='<div class="hh-pane sim"><div class="hh-pane-title">シミュレーション後</div>';
-  html+='<div class="hh-row"><span>本人</span><span style="font-weight:600;color:#2d5a8e">'+fm(sim.hd)+'</span></div>';
-  html+='<div class="hh-row"><span>配偶者</span><span style="font-weight:600">'+fm(sp.hd)+'</span></div>';
+  html+='<div class="hh-row"><span>夫（本人）</span><span style="font-weight:600;color:#2d5a8e">'+fm(sim.hd)+'</span></div>';
+  html+='<div class="hh-row"><span>妻（配偶者）</span><span style="font-weight:600;color:#b03060">'+fm(simSP.hd)+'</span></div>';
   html+='<div class="hh-total-row"><span>世帯合計</span><span style="color:#2d5a8e">'+fm(simHH)+'</span></div></div></div>';
-  if(S.cI!==S.sI||S.ft>0||S.id>0){
-    html+='<div class="hh-diff '+(diff>=0?'pos':'neg')+'">';
-    html+='<div class="hh-diff-label">世帯手取りの変化</div>';
-    html+='<div class="hh-diff-val '+(diff>=0?'pos':'neg')+'">'+fs(diff)+'</div></div>';
-  }
-  html+='<div class="sp-detail-title">配偶者の内訳（年収 '+fm(sp.spI)+'）</div>';
-  html+='<div class="sp-si-box"><div style="font-size:11px;font-weight:700;color:#c53030;margin-bottom:6px">社会保険料の自己負担</div>';
-  if(sp.hasSI){
-    html+='<div class="detail-row"><span class="det-lbl">健康保険（本人分）</span><span class="det-mn">-'+fm(sp.h)+'</span></div>';
-    if(sp.nu>0)html+='<div class="detail-row"><span class="det-lbl">介護保険</span><span class="det-mn">-'+fm(sp.nu)+'</span></div>';
-    html+='<div class="detail-row"><span class="det-lbl">厚生年金（本人分）</span><span class="det-mn">-'+fm(sp.pe)+'</span></div>';
-    html+='<div class="detail-row"><span class="det-lbl">雇用保険</span><span class="det-mn">-'+fm(sp.ei)+'</span></div>';
-    html+='<div class="detail-row"><span class="det-lbl">子育て支援金</span><span class="det-mn">-'+fm(sp.sk)+'</span></div>';
-    html+='<div class="detail-row" style="border-top:1px solid #e2e8f0;margin-top:2px;padding-top:4px"><span class="det-lbl" style="font-weight:600">社保計</span><span class="det-mn">-'+fm(sp.si)+'</span></div>';
-  }else{
-    html+='<div style="font-size:11px;color:#718096;padding:4px 0">年収106万円未満のため社会保険は世帯主の扶養内（本人負担なし）</div>';
-  }
-  html+='<div class="detail-row"><span class="det-lbl">所得税</span><span class="det-mn">-'+fm(sp.it)+'</span></div>';
-  html+='<div class="detail-row"><span class="det-lbl">住民税</span><span class="det-mn">-'+fm(sp.jx)+'</span></div>';
-  html+='<div class="detail-row"><span class="det-lbl">実効負担率</span><span style="font-size:11px;font-weight:600">'+sp.er+'%</span></div></div>';
-  var hkv=hk(S.spI),hkvL=hkLabel(S.spI);
-  html+='<div class="deduction-box"><div style="font-size:11px;font-weight:700;color:#276749;margin-bottom:6px">世帯主の所得控除への影響</div>';
+  html+='<div class="hh-diff '+(diff>=0?'pos':'neg')+'">';
+  html+='<div class="hh-diff-label">世帯手取りの変化</div>';
+  html+='<div class="hh-diff-val '+(diff>=0?'pos':'neg')+'">'+fs(diff)+'</div></div>';
+  var hkv=hk(S.spSI),hkvL=hkLabel(S.spSI);
+  html+='<div class="deduction-box"><div style="font-size:11px;font-weight:700;color:#276749;margin-bottom:6px">世帯主の所得控除への影響（シミュ年収ベース）</div>';
   html+='<div class="detail-row"><span class="det-lbl">配偶者(特別)控除</span><span class="det-pl">'+hkvL+'</span></div>';
   if(hkv>0){
     var saving=Math.round(hkv*(sim.tr*1.021+0.10));
@@ -706,11 +785,27 @@ function wlist(inc){
   e.innerHTML=h;
 }
 
+function updateSpw(spSI){
+  if(!S.hasSp)return;
+  var sw=document.getElementById('spw'),st='';
+  if(spSI>=2760000)st='<span class="sp-tag sp-over">276万円超（特別控除ゼロ）</span>';
+  else if(spSI>=2250000)st='<span class="sp-tag sp-over">225万円超（特別控除逓減）</span>';
+  else if(spSI>=1780000)st='<span class="sp-tag sp-over">178万円超（配偶者控除なし・特別控除満額）</span>';
+  else if(spSI>=1300000)st='<span class="sp-tag sp-over">130万円超（扶養外）</span>';
+  else if(spSI>=1060000)st='<span class="sp-tag sp-over">106万円超（社保加入）</span>';
+  else st='<span class="sp-tag sp-ok">扶養内（178万円以下）</span>';
+  sw.innerHTML=st;
+}
+
 function upd(){
-  var cur=calc(S.cI,0,0,false),sim=calc(S.sI,S.ft,S.id,true);
+  var spCI=S.hasSp?S.spCI:0, spSI=S.hasSp?S.spSI:0;
+  var cur=calc(S.cI,0,0,false,spCI);
+  var sim=calc(S.sI,S.ft,S.id,true,spSI);
+
   document.getElementById('chd').textContent=fm(cur.hd);
   document.getElementById('shd').textContent=fm(sim.hd);
   det(cur,'cdt');det(sim,'sdt');
+
   var diff=sim.hd-cur.hd,db=document.getElementById('db');
   if(S.cI!==S.sI||S.ft>0||S.id>0||sim.otherIt>0||sim.hloanIt>0||sim.hloanJt>0){
     db.style.display='block';
@@ -720,46 +815,58 @@ function upd(){
     dv.textContent=fs(diff);
     document.getElementById('dn').textContent=cur.hd>0?'変化率: '+(diff/cur.hd*100).toFixed(1)+'%':'';
   }else{db.style.display='none';}
-  var hhCard=document.getElementById('hh-card');
+
   if(S.hasSp){
-    document.getElementById('hh-content').innerHTML=hhContent(cur,sim,calcSpouse(S.spI));
-    hhCard.style.display='block';
-  }else{hhCard.style.display='none';}
+    var curSP=calcSpouse(spCI),simSP=calcSpouse(spSI);
+    document.getElementById('sp-chd').textContent=fm(curSP.hd);
+    document.getElementById('sp-shd').textContent=fm(simSP.hd);
+    detSp(curSP,'sp-cdt');detSp(simSP,'sp-sdt');
+    document.getElementById('sp-compare').style.display='grid';
+    document.getElementById('hh-card').style.display='block';
+    document.getElementById('hh-content').innerHTML=hhContent(cur,sim,curSP,simSP);
+  }else{
+    document.getElementById('sp-compare').style.display='none';
+    document.getElementById('hh-card').style.display='none';
+  }
+
   updateFuyouSummary();
   wlist(S.sI);
+  updateSpw(spSI);
+
   var fl=document.getElementById('ftl');
   fl.textContent=sim.fL>0?'推定上限額: '+fm(sim.fL)+'（目安）※iDeCo・扶養控除の影響を加味済み':'';
   var wa=document.getElementById('wa'),wm='';
   for(var i=0;i<WS.length;i++){var w=WS[i];if(S.sI<w.a&&w.a-S.sI<500000){wm='<div class="alert">⚠ '+w.l+'まで あと'+fm(w.a-S.sI)+'</div>';break;}}
   wa.innerHTML=wm;
-  if(S.hasSp){
-    var sw=document.getElementById('spw'),st='';
-    if(S.spI>=2760000)st='<span class="sp-tag sp-over">276万円超（特別控除ゼロ）</span>';
-    else if(S.spI>=2250000)st='<span class="sp-tag sp-over">225万円超（特別控除逓減）</span>';
-    else if(S.spI>=1780000)st='<span class="sp-tag sp-over">178万円超（配偶者控除なし・特別控除満額）</span>';
-    else if(S.spI>=1300000)st='<span class="sp-tag sp-over">130万円超（扶養外）</span>';
-    else if(S.spI>=1060000)st='<span class="sp-tag sp-over">106万円超（社保加入）</span>';
-    else st='<span class="sp-tag sp-ok">扶養内（178万円以下）</span>';
-    sw.innerHTML=st;
-  }
 }
 
 function setEmp(v){S.emp=v;document.getElementById('be').className=v?'act':'';document.getElementById('bf').className=v?'':'act';upd();}
-function setSp(v){S.hasSp=v;document.getElementById('bns').className=v?'':'act';document.getElementById('bs').className=v?'act':'';document.getElementById('sps').style.display=v?'block':'none';upd();}
+function setSpEmp(v){S.spEmp=v;document.getElementById('sp-be').className=v?'act':'';document.getElementById('sp-bf').className=v?'':'act';upd();}
+function setSp(v){
+  S.hasSp=v;
+  document.getElementById('bns').className=v?'':'act';
+  document.getElementById('bs').className=v?'act':'';
+  document.getElementById('tsuma-col').style.display=v?'block':'none';
+  document.getElementById('otto-header').style.display=v?'block':'none';
+  document.getElementById('income-area').className=v?'couple':'';
+  upd();
+}
 
 [['age-s',function(v){S.age=v;document.getElementById('age-o').textContent=v+'歳';}],
  ['ci-s',function(v){S.cI=v;document.getElementById('ci-o').textContent=fm(v);}],
  ['si-s',function(v){S.sI=v;document.getElementById('si-o').textContent=fm(v);}],
  ['ft-s',function(v){S.ft=v;document.getElementById('ft-o').textContent=fm(v);}],
  ['id-s',function(v){S.id=v;document.getElementById('id-o').textContent=fm(v)+'/月';}],
- ['sp-s',function(v){S.spI=v;document.getElementById('sp-o').textContent=fm(v);}],
+ ['spci-s',function(v){S.spCI=v;document.getElementById('spci-o').textContent=fm(v);}],
+ ['spsi-s',function(v){S.spSI=v;document.getElementById('spsi-o').textContent=fm(v);}],
+ ['sp-age-s',function(v){S.spAge=v;document.getElementById('sp-age-o').textContent=v+'歳';}],
  ['ins-s',function(v){S.ins=v;document.getElementById('ins-o').textContent=fm(v);}],
  ['quake-s',function(v){S.quake=v;document.getElementById('quake-o').textContent=fm(v);}],
  ['med-s',function(v){S.med=v;document.getElementById('med-o').textContent=fm(v);}],
  ['hloan-s',function(v){S.hloan=v;document.getElementById('hloan-o').textContent=fm(v);}],
 ].forEach(function(p){var el=document.getElementById(p[0]);if(el)el.addEventListener('input',function(){p[1](+this.value);upd();});});
 
-setEmp(true);setSp(false);upd();
+setEmp(true);setSpEmp(true);setSp(false);upd();
 </script>
 </body>
 </html>
